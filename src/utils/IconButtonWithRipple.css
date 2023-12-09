@@ -1,0 +1,32 @@
+/* IconButtonWithRipple.css */
+
+.ripple-icon-button {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple-icon-button:hover {
+    background-color: transparent;
+}
+
+.ripple-icon-button:active {
+    background-color: transparent;
+}
+
+.ripple-icon-button:after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(0);
+    animation: ripple-animation 0.4s linear;
+}
+
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}

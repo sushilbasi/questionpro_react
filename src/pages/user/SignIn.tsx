@@ -8,36 +8,53 @@ import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useNavigate } from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {loginUser} from "../../store/actions/userAction/authentication";
+import {isUserLoggedIn, setUserActive} from "../../utils/auth.utils";
+import {useEffect} from "react";
+import MySnackbar from "../../components/Snackbar";
 
-function Copyright(props: any) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function SignIn() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const {user, isFetchingUser, login_status} = useSelector(
+      (state: any) => state?.authenticationReducer || null
+  );
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const form_data = new FormData(event.currentTarget);
+    const data = {
+      username: form_data.get('username') ,
+      password: form_data.get('password'),
+    }
+
+    // @ts-ignore
+    dispatch(loginUser(data))
+    // navigate("/");
   };
+
+  // const is_userlogged_in = isUserLoggedIn()
+  // useEffect(() => {
+  //   if (is_userlogged_in) {
+  //     navigate("/");
+  //   }
+  // }, [is_userlogged_in]);
+
+  useEffect(() => {
+    if (isUserLoggedIn()) {
+      navigate("/");
+    }
+  }, [user]);
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -51,9 +68,8 @@ export default function SignIn() {
             alignItems: 'center',
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
+          <Typography variant="h3" style={{fontFamily: 'EB Garamond', margin: '14px 20px'}}> Question
+            Pro</Typography>
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
@@ -62,10 +78,10 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="username"
+              label="Username"
+              name="username"
+              autoComplete="username"
               autoFocus
             />
             <TextField
@@ -92,19 +108,19 @@ export default function SignIn() {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
+                {/*<Link href="#" variant="body2">*/}
+                {/*  Forgot password?*/}
+                {/*</Link>*/}
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link onClick={()=>navigate('/signup')} variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        <MySnackbar show={login_status == false} message={"Failed to login"}/>
       </Container>
     </ThemeProvider>
   );

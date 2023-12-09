@@ -1,18 +1,19 @@
 import axios from "axios";
 
-const baseURL = process.env.REACT_APP_BASE_URL_VERSION;
+const baseURL = process.env.REACT_APP_BASE_URL;
 
-const parsedData = window.location.pathname.split("/");
-const domainName: any = parsedData[1];
+// const parsedData = window.location.pathname.split("/");
+// const domainName: any = parsedData[1];
 
 
 const axiosInstance = axios.create({
     baseURL,
     headers: {
         Accept: "application/json",
-        // 'Access-Control-Allow-Origin' : '*',
+        'Access-Control-Allow-Origin' : '*',
         // company_domain: domainName === "admin" ? "" : domainName,
     },
+    timeout:300000
 });
 
 axiosInstance.interceptors.response.use(

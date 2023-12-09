@@ -8,36 +8,58 @@ import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import {isUserLoggedIn} from "../../utils/auth.utils";
+import {useNavigate} from "react-router-dom";
+import {useEffect} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {signUpUser} from "../../store/actions/userAction/authentication";
+import MySnackbar from "../../components/Snackbar";
 
-function Copyright(props: any) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function SignUp() {
+export default function SignUp(props:any) {
+  const navigate = useNavigate();
+  const dispatch = useDispatch()
+
+  const {user, isFetchingUser, login_status} = useSelector(
+      (state: any) => state?.authenticationReducer || null
+  );
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
+
+    const formData = {
+      first_name: data.get('firstName'),
+      last_name: data.get('lastName'),
+      username: data.get('username'),
       password: data.get('password'),
-    });
-  };
+    }
+    if(formData.first_name == '' || formData.last_name == '' || formData.username == '' || formData.password == ''){
+      alert("Please enter all the field")
+      return false
+    }
+    // @ts-ignore
+    dispatch(signUpUser(formData))
+  }
+
+  useEffect(()=>{
+    if(isUserLoggedIn()){
+      navigate("/");
+    }
+  },[])
+
+  useEffect(()=>{
+    if(user){
+      navigate("/");
+    }
+  },[user])
+
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -51,9 +73,13 @@ export default function SignUp() {
             alignItems: 'center',
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
+          {/*<Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>*/}
+          {/*  <LockOutlinedIcon />*/}
+          {/*</Avatar> {/*<Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>*/}
+          {/*  <LockOutlinedIcon />*/}
+          {/*</Avatar>*/}
+          <Typography variant="h3" style={{fontFamily: 'EB Garamond', margin: '14px 20px'}}> Question
+            Pro</Typography>
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
@@ -84,10 +110,10 @@ export default function SignUp() {
                 <TextField
                   required
                   fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
                 />
               </Grid>
               <Grid item xs={12}>
@@ -101,12 +127,12 @@ export default function SignUp() {
                   autoComplete="new-password"
                 />
               </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-              </Grid>
+              {/*<Grid item xs={12}>*/}
+              {/*  <FormControlLabel*/}
+              {/*    control={<Checkbox value="allowExtraEmails" color="primary" />}*/}
+              {/*    label="I want to receive inspiration, marketing promotions and updates via email."*/}
+              {/*  />*/}
+              {/*</Grid>*/}
             </Grid>
             <Button
               type="submit"
@@ -118,14 +144,14 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link onClick={()=>navigate('/login')} variant="body2">
                   Already have an account? Sign in
                 </Link>
               </Grid>
             </Grid>
           </Box>
+          <MySnackbar show={login_status == false} message={"Failed to login"}/>
         </Box>
-        <Copyright sx={{ mt: 5 }} />
       </Container>
     </ThemeProvider>
   );
